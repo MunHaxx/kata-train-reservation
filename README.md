@@ -110,7 +110,7 @@ For instance:
 ```json
 {
   "train_id": "express_2000",
-  "count": 4
+  "count": 2
 }
 ```
 
