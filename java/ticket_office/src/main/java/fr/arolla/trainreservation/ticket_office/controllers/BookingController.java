@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.arolla.trainreservation.ticket_office.Seat;
+import fr.arolla.trainreservation.ticket_office.domain.HttpClient;
+import fr.arolla.trainreservation.ticket_office.domain.IHttpClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,15 +15,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-
 @RestController
 public class BookingController {
 
-  private final RestTemplate restTemplate;
-
-  BookingController() {
-    restTemplate = new RestTemplate();
+  private final IHttpClient httpClient;
+public BookingController(final IHttpClient httpClient) {
+    this.httpClient = httpClient;
   }
+  public BookingController() {
+    this.httpClient = new HttpClient();
+  }
+
 
   @RequestMapping("/reserve")
   BookingResponse reserve(@RequestBody BookingRequest bookingRequest) {
@@ -29,10 +33,9 @@ public class BookingController {
     var trainId = bookingRequest.train_id();
 
     // Step 1: Get a booking reference
-    var bookingReference = restTemplate.getForObject("http://127.0.0.1:8082/booking_reference", String.class);
-
+    var bookingReference = httpClient.getBookingReference();
     // Step 2: Retrieve train data for the given train ID
-    var json = restTemplate.getForObject("http://127.0.0.1:8081/data_for_train/" + trainId, String.class);
+    var json = httpClient.getTrainData(trainId);
     ObjectMapper objectMapper = new ObjectMapper();
     ArrayList<Seat> seats = new ArrayList<>();
     try {
@@ -65,7 +68,7 @@ public class BookingController {
     payload.put("train_id", trainId);
     payload.put("seats", ids);
     payload.put("booking_reference", bookingReference);
-    restTemplate.postForObject("http://127.0.0.1:8081/reserve", payload, String.class);
+    httpClient.postBookingReservation(payload);
 
     // Step 5: return reference and booked seats
     return new BookingResponse(trainId, bookingReference, ids);
