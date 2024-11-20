@@ -150,6 +150,9 @@ and add some unit tests for it that can run *without* making any HTTP
 calls or parsing JSON.
 
 Note that you should *not* touch the code of the `booking_reference` and `train_data`
-services.
+services - and yould should probably keep the "end-to-end" tests as is.
+
+Finally, please note there's a pre-requisite if you choose to do this kata in Java: you
+need to know SpringBoot well.
 
 Have fun!
