@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.arolla.trainreservation.ticket_office.Seat;
 import fr.arolla.trainreservation.ticket_office.domain.HttpClient;
 import fr.arolla.trainreservation.ticket_office.domain.IHttpClient;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,8 +28,9 @@ public BookingController(final IHttpClient httpClient) {
   }
 
 
+  @VisibleForTesting
   @RequestMapping("/reserve")
-  BookingResponse reserve(@RequestBody BookingRequest bookingRequest) {
+  public BookingResponse reserve(@RequestBody BookingRequest bookingRequest) {
     var seatCount = bookingRequest.count();
     var trainId = bookingRequest.train_id();
 
