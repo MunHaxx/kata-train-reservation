@@ -4,8 +4,16 @@ import json
 
 from flask import Flask, request
 
+from python.ticket_office.real_external_services import BookingReferenceService, TrainDataService
+from python.ticket_office.reservation_service import ReservationService
+
 
 def create_app():
+    session = Session()
+    booking_reference_service = BookingReferenceService(session)
+    train_data_service = TrainDataService(session)
+    reservation_service = ReservationService(booking_reference_service, train_data_service)
+    
     app = Flask("ticket_office")
 
     @app.post("/reserve")
@@ -14,39 +22,10 @@ def create_app():
         seat_count = payload["count"]
         train_id = payload["train_id"]
 
-        session = Session()
+        reservation = reservation_service.reserve(seat_count, train_id)
 
-        booking_reference = session.get("http://localhost:8082/booking_reference").text
-
-        train_data = session.get(
-            f"http://localhost:8081/data_for_train/" + train_id
-        ).json()
-        available_seats = (
-            s
-            for s in train_data["seats"].values()
-            if s["coach"] == "A" and not s["booking_reference"]
-        )
-        to_reserve = []
-        for i in range(seat_count):
-            to_reserve.append(next(available_seats))
-
-        seat_ids = [s["seat_number"] + s["coach"] for s in to_reserve]
-        reservation = {
-            "train_id": train_id,
-            "booking_reference": booking_reference,
-            "seats": seat_ids,
-        }
-
-        reservation_payload = {
-            "train_id": reservation["train_id"],
-            "seats": reservation["seats"],
-            "booking_reference": reservation["booking_reference"],
-        }
-
-        response = session.post(
-            "http://localhost:8081/reserve",
-            json=reservation_payload,
-        )
+        response = train_data_service.post_reservation(reservation)
+        
         assert response.status_code == 200, response.text
         response = response.json()
 
