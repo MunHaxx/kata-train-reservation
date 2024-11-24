@@ -1,9 +1,10 @@
 package fr.arolla.trainreservation.ticket_office.domain;
 
-import java.util.HashMap;
-import java.util.Map;
+import fr.arolla.trainreservation.ticket_office.Seat;
 
-public class FakeHttpClient implements IHttpClient {
+import java.util.*;
+
+public class FakeHttpClient implements BookingService {
 
   private final Map<String, String> responses = new HashMap<>();
   @Override
@@ -12,12 +13,19 @@ public class FakeHttpClient implements IHttpClient {
   }
 
   @Override
-  public String getTrainData(String trainId) {
-    return "";
+  public Train getTrainData(String trainId) {
+    List<Seat> seats = Arrays.asList(
+      new Seat("1", "A", "b_01"),
+      new Seat("2", "A", null),
+      new Seat("3", "A", null),
+      new Seat("1", "B", "b_01")
+    );
+    return new Train(seats);
   }
 
   @Override
-  public void postBookingReservation(Object payload) {
+  public void postBookingReservation(String trainId, List<String> seat_ids, String bookingReference) {
+
   }
 
   public void setResponse(String url, String response) {

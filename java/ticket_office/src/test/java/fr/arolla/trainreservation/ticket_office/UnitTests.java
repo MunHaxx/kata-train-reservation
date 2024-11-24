@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,7 +71,6 @@ class UnitTests {
     assertEquals(expected, bookingResponse.seats());
   }
 
-
   @Test
   void reserve_two_additional_seats() throws Exception {
     // Reset
@@ -104,10 +104,10 @@ class UnitTests {
   }
 
   @Test
-  void reserve(){
-    BookingResponse expectedBookingResponse = new BookingResponse("", "", "");
+  void reserve_two_seats_from_empty_train_v2(){
+    BookingResponse expectedBookingResponse = new BookingResponse("train_1", "b_01", Arrays.asList("2A", "3A"));
     BookingController bookingController = new BookingController(new FakeHttpClient());
-    BookingRequest bookingRequest = new BookingRequest("", 0);
+    BookingRequest bookingRequest = new BookingRequest("train_1", 2);
     BookingResponse bookingResponse = bookingController.reserve(bookingRequest);
     assertEquals(expectedBookingResponse, bookingResponse);
   }
